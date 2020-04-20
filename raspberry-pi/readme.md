@@ -5,11 +5,12 @@ This guide will get you through the basics of setting up Rasbian.
 ## OS Image
 
  - [Download Rasbian Lite](https://www.raspberrypi.org/downloads/raspbian/)
- - Use [Etcher](https://www.balena.io/etcher/)to write the image to the rpi SD Card.
+ - Use [Etcher](https://www.balena.io/etcher/) to write the image to the rpi SD Card.
  
 ## OS Customisation
 
  - Add `wpa_supplicant.conf`
+
 ```
  country=AU
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
@@ -20,6 +21,7 @@ network={
     psk="YOUR_WIFI_PASS"
 }
 ```
+
  - Add empty `ssh` file, to enable SSH
  
 ## First boot - shell in

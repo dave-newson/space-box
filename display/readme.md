@@ -1,16 +1,13 @@
 # Microdot pHat
 
-https://learn.pimoroni.com/tutorial/sandyj/getting-started-with-micro-dot-phat
-
-## Install MicroDot pHat
-
-https://learn.pimoroni.com/tutorial/sandyj/getting-started-with-micro-dot-phat
+Installation instructions: https://learn.pimoroni.com/tutorial/sandyj/getting-started-with-micro-dot-phat
 
 ## Test MicroDot pHat
 
 Run `python`
 
 Enter:
+
 ```
 from microdotphat import fill, clear, show, WIDTH, HEIGHT
 fill(1)
