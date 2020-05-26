@@ -1,6 +1,7 @@
 const axios = require('axios');
 const moment = require('moment');
 const udp = require('dgram');
+const fs = require('fs');
 
 // Config
 const addr = "192.168.1.201";
@@ -26,6 +27,17 @@ const dispatch = (text) => {
 };
 
 const checkSuppress = (text, duration) => {
+
+    // If "show" file exists, always display the text
+    if (fs.existsSync('show')) {
+        return text;
+    }
+
+    // More than 30 minutes into the mission?
+    // Don't display
+    if (duration < -60*30) {
+        return ' ';
+    }
 
     // Always show in the last hour
     if (duration < 60*60) {
@@ -75,9 +87,11 @@ const display = () => {
     } else if (modSec === 18) {
         text = launch.mission_name.substr(6, 6);
     } else if (modSec === 17) {
+        text = launch.mission_name.substr(12, 6);
+    } else if (modSec === 16 || modSec === 15) {
         text = `${duration.days()}d ${duration.hours()}h`;
     } else {
-        text = `${sign}${String(duration.minutes()).padStart(2, '0')}:${String(duration.seconds()).padStart(2, '0')}`;
+        text = `${sign}${String(Math.abs(duration.minutes())).padStart(2, '0')}:${String(Math.abs(duration.seconds())).padStart(2, '0')}`;
     }
 
     text = checkSuppress(text, durationSeconds);
@@ -95,8 +109,19 @@ const getLaunch = () => {
     axios
         .get('https://api.spacexdata.com/v3/launches/upcoming')
         .then(function (response) {
-            launch = response.data[0];
-        });
+
+            // Find the latest launch, less than 30 minutes old.
+            launch = response.data
+                .sort((a, b) => {
+                    if (a.launch_date_unix > b.launch_date_unix) return 1;
+                    if (a.launch_date_unix < b.launch_date_unix) return -1;
+                    return 0;
+                })
+                .find((item) => {
+                    const date = moment(item.launch_date_utc);
+                    return moment().diff(date, 'minutes') < 30;
+                });
+            });
 };
 
 dispatch('UPLINK');
@@ -104,4 +129,5 @@ dispatch('UPLINK');
 setInterval(display, 200);
 setInterval(getLaunch, 10000);
 getLaunch();
+
 

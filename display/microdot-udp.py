@@ -1,4 +1,5 @@
 import socket
+import time
 from microdotphat import fill, write_string, set_decimal, clear, show
 
 # Config
@@ -8,9 +9,10 @@ port = 12344
 # Socket setup
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1)
 s.bind((addr, port))
+# s.listen(5)
 
-# Boot flash
 clear()
 fill(1)
 show()
@@ -18,16 +20,23 @@ time.sleep(1)
 clear()
 show()
 
-print "Listening for UDP packets on ",addr,":",port
+print "Listening for a connection on ",addr,":",port
 
 while True:
 
-    # Decode received packets
-    data,addr = s.recvfrom(1024)
+    # Accept connection
+    # c, addr = s.accept();
+    # print "Connected: ",addr
 
+    # Decode received data
+    data,addr = s.recvfrom(1024)
+    
     print addr,"< ",data
 
     # Microdot update
     clear()
     write_string(data, kerning=False)
     show()
+
+    # Close connection
+c.close();
