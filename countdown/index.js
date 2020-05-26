@@ -2,10 +2,9 @@ const axios = require('axios');
 const moment = require('moment');
 const udp = require('dgram');
 const fs = require('fs');
+const config = require('./config.json');
 
-// Config
-const addr = "192.168.1.201";
-const port = 12344;
+// UDP4 Client
 const client = udp.createSocket('udp4');
 
 // Holds launch data
@@ -19,7 +18,7 @@ const dispatch = (text) => {
 	console.log(`> ${text}`);
 	
 	// creating a client socket
-	client.send(text, port, addr, (error) => {
+	client.send(text, config.port, config.host, (error) => {
 	  if (error) {
 		console.error(error);
 	  }
@@ -28,8 +27,9 @@ const dispatch = (text) => {
 
 const checkSuppress = (text, duration) => {
 
-    // If "show" file exists, always display the text
-    if (fs.existsSync('show')) {
+    // If "show" file exists, or config says "always show",
+    // then always display the text
+    if (fs.existsSync('show') || config.alwaysShow) {
         return text;
     }
 
@@ -46,18 +46,18 @@ const checkSuppress = (text, duration) => {
 
     const now = moment();
     
-    // > 24 hours, only display once every 4 hours
-    if (duration > 24*60*60) {
+    // > 4 days, only display once every 4 hours
+    if (duration > 4*24*60*60) {
         if ([10, 14, 18, 22].indexOf(now.hour()) !== -1) {
-            if (now.minute() === 0 && now.seconds() < 20) {
+            if (now.minute() === 0 && now.seconds() < 60) {
                 return text;
             }
         }
     }
 
-    // > 1 hour, only display once an hour, for 20 seconds
+    // > 1 hour, only display once an hour, for 60 seconds
     if (duration > 60*60) {
-        if (now.minute() === 0 && now.seconds() < 20) {
+        if (now.minute() === 0 && now.seconds() < 60) {
             return text;
         }
     }
